@@ -37,6 +37,7 @@ jobs:
           ssh-add ~/.ssh/id_rsa
           ssh-add -L
           git clone ssh://git@docs.grid.tf:7122/threefold/itenv_threefold_main.git itenv
+          sleep 40
 
       - name: Helm Deploy
         run: |
