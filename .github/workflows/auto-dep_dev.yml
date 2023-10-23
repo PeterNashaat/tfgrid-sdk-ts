@@ -34,6 +34,7 @@ jobs:
           eval `ssh-agent -s`
           ssh-add ~/.ssh/id_rsa
           ssh-add -L
+          ssh-keyscan -H docs.grid.tf >> ~/.ssh/known_hosts
           git clone ssh://git@docs.grid.tf:7122/threefold/itenv_threefold_main.git itenv
 
       - name: Helm Deploy
