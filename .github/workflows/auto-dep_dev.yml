@@ -18,7 +18,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan docs.grid.tf >> ~/.ssh/known_hosts
+          #ssh-keyscan docs.grid.tf >> ~/.ssh/known_hosts
 
       - name: Setup Helm
         run: |
@@ -30,6 +30,7 @@ jobs:
       - name: Fetch Values Files
         run: |
           # Clone the values repository
+          SSH_OPTIONS="-o StrictHostKeyChecking=no"
           git clone ssh://git@docs.grid.tf:7122/threefold/itenv_threefold_main.git itenv
 
       - name: Helm Deploy
