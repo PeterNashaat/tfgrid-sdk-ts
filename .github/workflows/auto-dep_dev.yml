@@ -31,6 +31,9 @@ jobs:
         run: |
           # Clone the values repository
           SSH_OPTIONS="-o StrictHostKeyChecking=no"
+          eval `ssh-agent -s`
+          ssh-add ~/.ssh/id_rsa
+          ssh-add -L
           git clone ssh://git@docs.grid.tf:7122/threefold/itenv_threefold_main.git itenv
 
       - name: Helm Deploy
