@@ -29,6 +29,7 @@ jobs:
 
       - name: Fetch Values Files
         run: |
+          set -x
           # Clone the values repository
           #SSH_OPTIONS="-o StrictHostKeyChecking=no"
           ssh-keyscan -H docs.grid.tf >> ~/.ssh/known_hosts
