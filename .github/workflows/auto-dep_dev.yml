@@ -32,7 +32,7 @@ jobs:
           set -x
           # Clone the values repository
           #SSH_OPTIONS="-o StrictHostKeyChecking=no"
-          ssh-keyscan -H docs.grid.tf >> ~/.ssh/known_hosts
+          #ssh-keyscan -H docs.grid.tf >> ~/.ssh/known_hosts
           eval `ssh-agent -s`
           ssh-add ~/.ssh/id_rsa
           ssh-add -L
