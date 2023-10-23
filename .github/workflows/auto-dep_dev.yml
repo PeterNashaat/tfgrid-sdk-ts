@@ -13,19 +13,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set up Helm
-        uses: Flydiverny/helm-package-action@0.1.0
-        with:
-          version: '3'
+      - name: Setup Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+          helm version
 
       - name: Fetch Values Files
         run: |
           # Clone the values repository
-          git clone ssh://git@docs.grid.tf:7122/threefold/itenv_threefold_main.git values
+          git clone ssh://git@docs.grid.tf:7122/threefold/itenv_threefold_main.git itenv
 
       - name: Helm Deploy
         run: |
-          helm upgrade --install peter-tfgrid-stats ./packages/stats/chart/ --namespace monitoring -f values/itenv_threefold_main/Kubernetes-clusters/hagrid-dev/applications/tfchain/tfgrid-stats/values.yaml --set image.tag=${{ steps.latest_tag.outputs.tag }} --set ingress.hosts[0].host=peter.stats.dev.grid.tf --set ingress.tls[0].secretName=peter-stats-dev-grid-tf-tls --set ingress.tls[0].hosts[0]=peter.stats.dev.grid.tf
+          helm upgrade --install peter-tfgrid-stats ./packages/stats/chart/ --namespace monitoring -f itenv/itenv_threefold_main/Kubernetes-clusters/hagrid-dev/applications/tfchain/tfgrid-stats/values.yaml --set image.tag=${{ steps.latest_tag.outputs.tag }} --set ingress.hosts[0].host=peter.stats.dev.grid.tf --set ingress.tls[0].secretName=peter-stats-dev-grid-tf-tls --set ingress.tls[0].hosts[0]=peter.stats.dev.grid.tf
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
