@@ -13,6 +13,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan docs.grid.tf >> ~/.ssh/known_hosts
+
       - name: Setup Helm
         run: |
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
@@ -30,3 +37,4 @@ jobs:
           helm upgrade --install peter-tfgrid-stats ./packages/stats/chart/ --namespace monitoring -f itenv/itenv_threefold_main/Kubernetes-clusters/hagrid-dev/applications/tfchain/tfgrid-stats/values.yaml --set image.tag=${{ steps.latest_tag.outputs.tag }} --set ingress.hosts[0].host=peter.stats.dev.grid.tf --set ingress.tls[0].secretName=peter-stats-dev-grid-tf-tls --set ingress.tls[0].hosts[0]=peter.stats.dev.grid.tf
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
+
