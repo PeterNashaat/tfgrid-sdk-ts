@@ -23,9 +23,7 @@ jobs:
       - name: Fetch Values Files
         run: |
           # Clone the values repository
-          git clone ssh://${{ secrets.GIT_ACCESS_TOKEN }}@docs.grid.tf:7122/threefold/itenv_threefold_main.git itenv
-        env:
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          git clone ssh://git@docs.grid.tf:7122/threefold/itenv_threefold_main.git itenv
 
       - name: Setup Helm
         run: |
