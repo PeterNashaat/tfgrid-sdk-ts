@@ -13,17 +13,30 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Clone Private Gitea Repo
+      - name: Setup SSH Key
         run: |
-          git config --global user.email "peter.n@incubaid.com"
-          git config --global user.name "petep"
-          git clone  ssh://git@docs.grid.tf:7122/threefold/itenv_threefold_main.git values
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H -p 7122  docs.grid.tf >> ~/.ssh/known_hosts
+
+      - name: Fetch Values Files
+        run: |
+          # Clone the values repository
+          git clone ssh://${{ secrets.GIT_ACCESS_TOKEN }}@docs.grid.tf:7122/threefold/itenv_threefold_main.git itenv
         env:
-          PRIVATE_REPO_ACCESS_TOKEN: ${{ secrets.GITEA_ACCESS_TOKEN }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+
+      - name: Setup Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+          helm version
 
       - name: Helm Deploy
         run: |
-          helm upgrade --install peter-tfgrid-stats ./packages/stats/chart/ --namespace monitoring -f values/itenv_threefold_main/Kubernetes-clusters/hagrid-dev/applications/tfchain/tfgrid-stats/values.yaml --set image.tag=${{ steps.latest_tag.outputs.tag }} --set ingress.hosts[0].host=peter.stats.dev.grid.tf --set ingress.tls[0].secretName=peter-stats-dev-grid-tf-tls --set ingress.tls[0].hosts[0]=peter.stats.dev.grid.tf
+          helm upgrade --install peter-tfgrid-stats ./packages/stats/chart/ --namespace monitoring -f itenv/itenv_threefold_main/Kubernetes-clusters/hagrid-dev/applications/tfchain/tfgrid-stats/values.yaml --set image.tag=${{ steps.latest_tag.outputs.tag }} --set ingress.hosts[0].host=peter.stats.dev.grid.tf --set ingress.tls[0].secretName=peter-stats-dev-grid-tf-tls --set ingress.tls[0].hosts[0]=peter.stats.dev.grid.tf
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
