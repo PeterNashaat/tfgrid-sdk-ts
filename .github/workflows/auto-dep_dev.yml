@@ -13,20 +13,15 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Setup SSH
-        uses: MrSquaare/ssh-setup-action@v1
-        with:
-          host: docs.grid.tf
-          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Fetch Values Files
         run: |
-          # Clone the values repository
-          git clone ssh://git@docs.grid.tf:7122/threefold/itenv_threefold_main.git values
+          git config --global user.email "peter.n@incubaid.com"
+          git config --global user.name "petep"
+          git clone  ssh://git@docs.grid.tf:7122/threefold/itenv_threefold_main.git values
+        env:
+          PRIVATE_REPO_ACCESS_TOKEN: ${{ secrets.GITEA_ACCESS_TOKEN }}
 
       - name: Helm Deploy
         run: |
           helm upgrade --install peter-tfgrid-stats ./packages/stats/chart/ --namespace monitoring -f values/itenv_threefold_main/Kubernetes-clusters/hagrid-dev/applications/tfchain/tfgrid-stats/values.yaml --set image.tag=${{ steps.latest_tag.outputs.tag }} --set ingress.hosts[0].host=peter.stats.dev.grid.tf --set ingress.tls[0].secretName=peter-stats-dev-grid-tf-tls --set ingress.tls[0].hosts[0]=peter.stats.dev.grid.tf
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
