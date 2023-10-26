@@ -2,8 +2,7 @@ name: Deploy Dashboard Helm Chart
 
 on:
   issue_comment:
-    types:
-      - created
+    types: [created]
 
 jobs:
   deploy:
@@ -13,9 +12,20 @@ jobs:
       - name: Check Comment for Deployment Request
         if: contains(github.event.comment.body, 'autodep bot deploy dashboard please')
         run: |
-          # If the comment contains the specific text, proceed with the deployment
-          # Add the deployment steps here
-          # This script will be executed when a comment with the specific text is created
+          # Extract the tag from the comment if it contains 'tag: X.Y.Z'
+          comment_tag=$(echo ${{ github.event.comment.body }} | grep -oE 'tag:[0-9]+\.[0-9]+\.[0-9]+' | cut -d':' -f2)
+          if [ -z "$comment_tag" ]; then
+            # If no tag provided in the comment, get the latest tag
+            latest_tag=$(curl -s https://api.github.com/repos/threefoldtech/tfgrid-sdk-ts/tags | jq -r '.[].name' | sort -V | tail -n 1 | sed 's/^v//')
+            echo "No tag found in comment, using the latest tag: $latest_tag"
+            echo "::set-output name=tag::$latest_tag"
+          else
+            # Use the tag from the comment
+            echo "Using tag provided in comment: $comment_tag"
+            echo "::set-output name=tag::$comment_tag"
+          fi
+        shell: bash
+
       - name: Checkout Repository
         uses: actions/checkout@v2
 
@@ -45,13 +55,6 @@ jobs:
           chmod 600 ~/.kube/config
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
-      - name: Get Latest Tag
-        id: latest_tag
-        run: |
-          latest_tag=$(curl -s https://api.github.com/repos/threefoldtech/tfgrid-sdk-ts/tags | jq -r '.[].name' | sort -V | tail -n 1 | sed 's/^v//')
-          echo "::set-output name=tag::$latest_tag"
-        shell: bash
 
       - name: Helm Deploy
         run: |
