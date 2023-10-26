@@ -13,7 +13,7 @@ jobs:
         if: contains(github.event.comment.body, 'autodep bot deploy dashboard please')
         run: |
           # Extract the tag from the comment if it contains 'tag: X.Y.Z'
-          comment_tag=$(echo ${{ github.event.comment.body }} | grep -oP 'tag: \K\d+\.\d+\.\d+')
+          comment_tag=$(echo ${{ github.event.comment.body }} | grep -oE 'tag:[0-9]+\.[0-9]+\.[0-9]+' | cut -d':' -f2)
           if [ -z "$comment_tag" ]; then
             # If no tag provided in the comment, get the latest tag
             latest_tag=$(curl -s https://api.github.com/repos/threefoldtech/tfgrid-sdk-ts/tags | jq -r '.[].name' | sort -V | tail -n 1 | sed 's/^v//')
