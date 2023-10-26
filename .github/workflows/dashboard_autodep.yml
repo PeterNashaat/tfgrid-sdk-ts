@@ -23,6 +23,8 @@ jobs:
             # Use the tag from the comment
             echo "Using tag provided in comment: $comment_tag"
             latest_tag=${comment_tag}
+            echo $latest_tag
+            echo $comment_tag
             echo "::set-output name=tag::$latest_tag"
           fi
         shell: bash
