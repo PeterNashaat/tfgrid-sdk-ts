@@ -22,7 +22,8 @@ jobs:
           else
             # Use the tag from the comment
             echo "Using tag provided in comment: $comment_tag"
-            echo "::set-output name=tag::$comment_tag"
+            latest_tag=${comment_tag}
+            echo "::set-output name=tag::$latest_tag"
           fi
         shell: bash
 
