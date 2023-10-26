@@ -59,5 +59,7 @@ jobs:
 
       - name: Helm Deploy
         run: |
+          echo $comment_tag
+          echo $latest_tag
           helm upgrade --install peter-tfgrid-dashboard ./packages/dashboard/charts/tfgrid-dashboard --namespace monitoring -f itenv/Kubernetes-clusters/hagrid-dev/applications/tfchain/tfgrid-dashboard/values.yaml --set image.tag=$comment_tag --set ingress.hosts[0].host=autodep.dashboard.stats.dev.grid.tf --set ingress.tls[0].secretName=autodep-dashboard-dev-grid-tf-tls --set ingress.tls[0].hosts[0]=autodep.dashboard.dev.grid.tf
 
