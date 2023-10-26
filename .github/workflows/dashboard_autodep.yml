@@ -13,7 +13,7 @@ jobs:
         if: contains(github.event.comment.body, 'autodep bot deploy dashboard please')
         run: |
           # Extract the tag from the comment if it contains 'tag: X.Y.Z'
-          comment_tag=$(echo ${{ github.event.comment.body }} | grep -oE 'tag:[0-9]+\.[0-9]+\.[0-9]+' | cut -d':' -f2)
+          comment_tag=$(echo ${{ github.event.comment.body }} | grep -oP 'tag: \K\d+\.\d+\.\d+')
           if [ -z "$comment_tag" ]; then
             # If no tag provided in the comment, get the latest tag
             latest_tag=$(curl -s https://api.github.com/repos/threefoldtech/tfgrid-sdk-ts/tags | jq -r '.[].name' | sort -V | tail -n 1 | sed 's/^v//')
@@ -22,11 +22,9 @@ jobs:
           else
             # Use the tag from the comment
             echo "Using tag provided in comment: $comment_tag"
-            latest_tag=${comment_tag}
-            echo $latest_tag
-            echo $comment_tag
-            echo "::set-output name=tag::$latest_tag"
+            echo "::set-output name=tag::$comment_tag"
           fi
+          echo "Using tag: ${{ steps.latest_tag.outputs.tag }}" # Display the selected tag for reference
         shell: bash
 
       - name: Checkout Repository
@@ -61,5 +59,5 @@ jobs:
 
       - name: Helm Deploy
         run: |
-          helm upgrade --install peter-tfgrid-dashboard ./packages/dashboard/charts/tfgrid-dashboard --namespace monitoring -f itenv/Kubernetes-clusters/hagrid-dev/applications/tfchain/tfgrid-dashboard/values.yaml --set image.tag=${{ steps.latest_tag.outputs.tag }} --set ingress.hosts[0].host=autodep.dashboard.stats.dev.grid.tf --set ingress.tls[0].secretName=autodep-dashboard-dev-grid-tf-tls --set ingress.tls[0].hosts[0]=autodep.dashboard.dev.grid.tf
+          helm upgrade --install peter-tfgrid-dashboard ./packages/dashboard/charts/tfgrid-dashboard --namespace monitoring -f itenv/Kubernetes-clusters/hagrid-dev/applications/tfchain/tfgrid-dashboard/values.yaml --set image.tag=$comment_tag --set ingress.hosts[0].host=autodep.dashboard.stats.dev.grid.tf --set ingress.tls[0].secretName=autodep-dashboard-dev-grid-tf-tls --set ingress.tls[0].hosts[0]=autodep.dashboard.dev.grid.tf
 
