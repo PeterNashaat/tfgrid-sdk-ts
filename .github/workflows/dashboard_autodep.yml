@@ -13,6 +13,7 @@ jobs:
         if: contains(github.event.comment.body, 'autodep bot deploy dashboard please')
         run: |
           # Extract the tag from the comment if it contains 'tag: X.Y.Z'
+          set -x
           comment_tag=$(echo ${{ github.event.comment.body }} | grep -oE 'tag:[0-9]+\.[0-9]+\.[0-9]+' | cut -d':' -f2)
           if [ -z "$comment_tag" ]; then
             # If no tag provided in the comment, get the latest tag
